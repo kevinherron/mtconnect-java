@@ -1,4 +1,4 @@
-# MTConnect with Java
+# MTConnect
 
 ## Code Generation 
 Run `mvn clean generate-sources` to generate the JAXB code.
