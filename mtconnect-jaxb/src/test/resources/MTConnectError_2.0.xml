@@ -1,0 +1,10 @@
+<MTConnectError
+  xmlns="urn:mtconnect.org:MTConnectError:2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:mtconnect.org:MTConnectError:2.0 /schemas/MTConnectError_2.0.xsd">
+  <Header creationTime="2025-04-13T03:18:43Z" sender="IntelAgent" instanceId="1743558962"
+    version="2.2.0.502" deviceModelChangeTime="2025-04-02T01:56:02.098850Z" bufferSize="131072"/>
+  <Errors>
+    <Error errorCode="NO_DEVICE">Could not find the device 'foo'</Error>
+  </Errors>
+</MTConnectError>

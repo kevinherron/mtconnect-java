@@ -1,5 +1,8 @@
 package com.kevinherron.mtconnect;
 
+import static com.kevinherron.mtconnect.ObjectFactories.ASSETS_OBJECT_FACTORY;
+import static com.kevinherron.mtconnect.ObjectFactories.ERROR_OBJECT_FACTORY;
+
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.Unmarshaller;
@@ -14,29 +17,28 @@ import org.mtconnect.v20.assets.CuttingToolType;
 import org.mtconnect.v20.assets.FileType;
 import org.mtconnect.v20.assets.HeaderType;
 import org.mtconnect.v20.assets.MTConnectAssetsType;
+import org.mtconnect.v20.error.MTConnectErrorType;
 
 public class Assets {
 
-  public static void main(String[] args) {
-    try {
-      HttpClient client = HttpClient.newHttpClient();
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create("https://demo.mtconnect.org/assets"))
-              .GET()
-              .build();
+  public static void main(String[] args) throws Exception {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder().uri(URI.create("https://demo.mtconnect.org/assets")).GET().build();
 
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-      System.out.println(response.body());
+    System.out.println(response.body());
 
-      JAXBContext jaxbContext = JAXBContext.newInstance(MTConnectAssetsType.class);
-      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-      JAXBElement<?> element =
-          (JAXBElement<?>) unmarshaller.unmarshal(new java.io.StringReader(response.body()));
+    JAXBContext jaxbContext = JAXBContext.newInstance(ASSETS_OBJECT_FACTORY, ERROR_OBJECT_FACTORY);
+    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-      MTConnectAssetsType mTCAssets = (MTConnectAssetsType) element.getValue();
+    JAXBElement<?> element =
+        (JAXBElement<?>) unmarshaller.unmarshal(new java.io.StringReader(response.body()));
 
+    if (element.getValue() instanceof MTConnectErrorType error) {
+      Error.printError(error);
+    } else if (element.getValue() instanceof MTConnectAssetsType mTCAssets) {
       HeaderType header = mTCAssets.getHeader();
 
       // Print interesting information from HeaderType
@@ -66,20 +68,14 @@ public class Assets {
         System.out.println("Removed: " + asset.isRemoved());
 
         // Check the specific type of asset and print additional information
-        if (asset instanceof CuttingToolType) {
-          CuttingToolType cuttingTool = (CuttingToolType) asset;
+        if (asset instanceof CuttingToolType cuttingTool) {
           System.out.println("Asset Type: Cutting Tool");
-          // Print cutting tool specific information if needed
-        } else if (asset instanceof FileType) {
-          FileType file = (FileType) asset;
+        } else if (asset instanceof FileType file) {
           System.out.println("Asset Type: File");
-          // Print file specific information if needed
         } else {
           System.out.println("Asset Type: " + asset.getClass().getSimpleName());
         }
       }
-    } catch (Exception e) {
-      e.printStackTrace(System.err);
     }
   }
 }

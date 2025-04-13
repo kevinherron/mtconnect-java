@@ -1,5 +1,8 @@
 package com.kevinherron.mtconnect;
 
+import static com.kevinherron.mtconnect.ObjectFactories.DEVICES_OBJECT_FACTORY;
+import static com.kevinherron.mtconnect.ObjectFactories.ERROR_OBJECT_FACTORY;
+
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.Unmarshaller;
@@ -12,31 +15,33 @@ import org.mtconnect.v20.devices.DeviceType;
 import org.mtconnect.v20.devices.DevicesType;
 import org.mtconnect.v20.devices.HeaderType;
 import org.mtconnect.v20.devices.MTConnectDevicesType;
+import org.mtconnect.v20.error.MTConnectErrorType;
 
 public class Probe {
 
-  public static void main(String[] args) {
-    try {
-      HttpClient client = HttpClient.newHttpClient();
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create("https://demo.mtconnect.org/probe"))
-              .GET()
-              .build();
+  public static void main(String[] args) throws Exception {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create("https://demo.mtconnect.org/foo/probe"))
+            .GET()
+            .build();
 
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-      System.out.println(response.body());
+    System.out.println(response.body());
 
-      JAXBContext jaxbContext = JAXBContext.newInstance(MTConnectDevicesType.class);
-      Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-      JAXBElement<?> element =
-          (JAXBElement<?>) unmarshaller.unmarshal(new java.io.StringReader(response.body()));
+    JAXBContext jaxbContext = JAXBContext.newInstance(DEVICES_OBJECT_FACTORY, ERROR_OBJECT_FACTORY);
+    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-      MTConnectDevicesType mTCDevices = (MTConnectDevicesType) element.getValue();
+    JAXBElement<?> element =
+        (JAXBElement<?>) unmarshaller.unmarshal(new java.io.StringReader(response.body()));
 
-      HeaderType headerType = mTCDevices.getHeader();
-      DevicesType devicesType = mTCDevices.getDevices();
+    if (element.getValue() instanceof MTConnectErrorType error) {
+      Error.printError(error);
+    } else if (element.getValue() instanceof MTConnectDevicesType devices) {
+      HeaderType headerType = devices.getHeader();
+      DevicesType devicesType = devices.getDevices();
 
       // Print information from HeaderType
       System.out.println("\n--- Header Information ---");
@@ -65,8 +70,6 @@ public class Probe {
       for (DeviceType device : devicesType.getDevice()) {
         printDeviceInfo(device);
       }
-    } catch (Exception e) {
-      e.printStackTrace(System.err);
     }
   }
 
