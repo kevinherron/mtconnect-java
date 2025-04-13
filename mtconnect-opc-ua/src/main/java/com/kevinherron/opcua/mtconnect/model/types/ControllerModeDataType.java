@@ -99,6 +99,7 @@ public enum ControllerModeDataType implements UaEnumeratedType {
   }
 
   public static final class TypeInfo {
-    public static final ExpandedNodeId TYPE_ID = ExpandedNodeId.parse("ns=1;i=2203");
+    public static final ExpandedNodeId TYPE_ID =
+        ExpandedNodeId.parse("nsu=http://opcfoundation.org/UA/MTConnect/v2/;i=2203");
   }
 }
