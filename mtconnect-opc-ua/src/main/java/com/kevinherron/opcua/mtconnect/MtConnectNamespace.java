@@ -25,7 +25,7 @@ public class MtConnectNamespace extends NodeSetNamespace {
   @Override
   protected List<InputStream> getNodeSetInputStreams() {
     InputStream inputStream =
-        MtConnectNamespace.class.getResourceAsStream("Opc.Ua.MTConnect.NodeSet2.xml");
+        MtConnectNamespace.class.getResourceAsStream("/Opc.Ua.MTConnect.NodeSet2.xml");
     assert inputStream != null;
 
     return List.of(inputStream);
